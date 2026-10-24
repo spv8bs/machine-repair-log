@@ -18,5 +18,13 @@ class Component(models.Model):
     component_type = models.CharField(max_length=50) # main motor, print section bearing, etc.
     description = models.TextField(blank=True, null=True)
 
+    # avoid creating the same component on a specific machine
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["machine", "component_type"],
+                name="uniqu_component_type_per_machine",
+                violation_error_message="This machine already has a component of this type.",),]
+
     def __str__(self):
         return f"{self.machine.model} - {self.component_type}"

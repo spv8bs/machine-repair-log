@@ -20,7 +20,7 @@ class Supplier(models.Model):
 
 class Part(models.Model):
     name = models.CharField(max_length=100)
-    catalog_number = models.CharField(unique=True)
+    catalog_number = models.CharField(unique=True, max_length=50)
     unit_price = models.DecimalField(max_digits=8, decimal_places=2,
                                      validators=[MinValueValidator(0)])
     supplier = models.ForeignKey(Supplier, on_delete=models.SET_NULL, null=True, blank=True, related_name="parts")

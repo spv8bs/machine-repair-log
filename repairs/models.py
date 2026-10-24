@@ -17,13 +17,19 @@ class Repair(models.Model):
     downtime_minutes = models.PositiveIntegerField(default=0)
     cost = models.DecimalField(max_digits=8, decimal_places=2, default=0,
                                validators=[MinValueValidator(0)])
-    status = models.BooleanField(default=False)
+    # status = models.BooleanField(default=False)
     photo = models.ImageField(upload_to="repairs/", blank=True)
     technicians = models.ManyToManyField(Technician, blank=True, related_name="repairs")
     parts = models.ManyToManyField(Part, blank=True, related_name="repairs")
 
+    @property
+    def is_resolved(self):
+        return self.resolved_on is not None
+
     def __str__(self):
-        return f"{self.machine} - {self.component}"
+        if self.component is None:
+            return f"{self.machine}"
+        return f"{self.machine} - {self.component.component_type}"
 
 class RepairAction(models.Model):
     repair = models.ForeignKey(Repair, on_delete=models.CASCADE, related_name="actions")
@@ -33,4 +39,6 @@ class RepairAction(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
+        if not self.description:
+            return f"{self.repair} - NOT SPECIFIED"
         return f"{self.repair} - {self.description}"
