@@ -4,5 +4,5 @@
 __pycache__/
 *.pyc
 db.sqlite3
-static/
 media/
+identifier.sqlite

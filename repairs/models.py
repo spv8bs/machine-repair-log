@@ -14,7 +14,6 @@ class Repair(models.Model):
     detected_on = models.DateTimeField(default=timezone.now)
     resolved_on = models.DateTimeField(null=True, blank=True)
     diagnosis = models.TextField(blank=True)
-    downtime_minutes = models.PositiveIntegerField(default=0)
     cost = models.DecimalField(max_digits=8, decimal_places=2, default=0,
                                validators=[MinValueValidator(0)])
     # status = models.BooleanField(default=False)

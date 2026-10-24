@@ -7,8 +7,9 @@
 {% block content %}
     <h1 class="h3">{{ machine.model }}</h1>
     <p>Type: {{ machine.machine_type }}</p>
-
+    <a href="{% url 'repairs:create' %}?machine={{ machine.pk }}" class="btn btn-primary">Add repair</a>
     <a href="{% url 'machines:edit' pk=machine.pk %}" class="btn btn-secondary">Edit</a>
     <a href="{% url 'machines:delete' pk=machine.pk %}" class="btn btn-danger">Delete</a>
     <a href="{% url 'machines:list' %}" class="btn btn-link">Back to list</a>
+
 {% endblock %}

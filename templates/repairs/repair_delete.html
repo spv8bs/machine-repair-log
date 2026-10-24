@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete repair{% endblock %}
+
+{% block content %}
+    <div class="card border-danger">
+        <div class="card-body">
+            <h1 class="h4">Delete repair</h1>
+            <p>
+                Are you sure you want to delete the repair of
+                <strong>{{ object.machine.model }}</strong> detected on
+                {{ object.detected_on|date:"d.m.Y" }}? Its actions will be deleted too. This cannot be undone.
+            </p>
+
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_div }}
+                <button type="submit" class="btn btn-danger">Yes, delete</button>
+                <a href="{% url 'repairs:detail' pk=object.pk %}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+{% endblock %}
