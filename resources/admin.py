@@ -1,3 +1,7 @@
 from django.contrib import admin
 
-# Register your models here.
+from resources.models import Technician, Supplier, Part
+
+admin.site.register(Technician)
+admin.site.register(Supplier)
+admin.site.register(Part)

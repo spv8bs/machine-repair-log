@@ -22,6 +22,9 @@ class Repair(models.Model):
     technicians = models.ManyToManyField(Technician, blank=True, related_name="repairs")
     parts = models.ManyToManyField(Part, blank=True, related_name="repairs")
 
+    def __str__(self):
+        return f"{self.machine} - {self.component}"
+
 class RepairAction(models.Model):
     repair = models.ForeignKey(Repair, on_delete=models.CASCADE, related_name="actions")
     technician = models.ForeignKey(Technician, on_delete=models.SET_NULL,
@@ -29,6 +32,5 @@ class RepairAction(models.Model):
     description = models.CharField(max_length=255, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-
-def __str__(self):
-    return self.model
+    def __str__(self):
+        return f"{self.repair} - {self.description}"

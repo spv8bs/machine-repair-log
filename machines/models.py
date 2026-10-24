@@ -10,11 +10,13 @@ class Machine(models.Model):
     is_active = models.BooleanField(default=True)
     notes = models.TextField(blank=True, null=True)
 
+    def __str__(self):
+        return self.model
+
 class Component(models.Model):
     machine = models.ForeignKey(Machine, on_delete=models.CASCADE, related_name="components")
     component_type = models.CharField(max_length=50) # main motor, print section bearing, etc.
     description = models.TextField(blank=True, null=True)
 
-
-def __str__(self):
-    return self.model
+    def __str__(self):
+        return f"{self.machine.model} - {self.component_type}"

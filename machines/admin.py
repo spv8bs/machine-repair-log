@@ -1,3 +1,6 @@
 from django.contrib import admin
 
-# Register your models here.
+from machines.models import Machine, Component
+
+admin.site.register(Machine)
+admin.site.register(Component)
