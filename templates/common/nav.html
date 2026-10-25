@@ -22,9 +22,9 @@
                     <a class="nav-link dropdown-toggle {% if request.resolver_match.app_name == 'resources' %}active{% endif %}"
                        href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Resources</a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Technicians</a></li>
-                        <li><a class="dropdown-item" href="#">Suppliers</a></li>
-                        <li><a class="dropdown-item" href="#">Parts</a></li>
+                        <li><a class="dropdown-item" href="{% url 'resources:technician_list' %}">Technicians</a></li>
+                        <li><a class="dropdown-item" href="{% url 'resources:supplier_list' %}">Suppliers</a></li>
+                        <li><a class="dropdown-item" href="{% url 'resources:part_list' %}">Parts</a></li>
                     </ul>
                 </li>
             </ul>

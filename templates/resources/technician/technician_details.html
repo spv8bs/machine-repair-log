@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ technician.first_name }} {{ technician.last_name }}{% endblock %}
+
+{% block page_header %}
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <h1 class="h3 mb-0">{{ technician.first_name }} {{ technician.last_name }}</h1>
+        <div>
+            <a href="{% url 'resources:technician_edit' pk=technician.pk %}" class="btn btn-secondary">Edit</a>
+            <a href="{% url 'resources:technician_delete' pk=technician.pk %}" class="btn btn-danger">Delete</a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="card mb-4">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Position</dt>
+                <dd class="col-sm-9">{{ technician.position }}</dd>
+
+                <dt class="col-sm-3">Email</dt>
+                <dd class="col-sm-9">{{ technician.email|default:"-" }}</dd>
+            </dl>
+        </div>
+    </div>
+
+    <h2 class="h5">Repairs ({{ repairs|length }})</h2>
+    {% if repairs %}
+        <table class="table table-hover bg-white">
+            <thead>
+                <tr>
+                    <th>Detected</th>
+                    <th>Machine</th>
+                    <th>Component</th>
+                    <th>Problem</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for repair in repairs %}
+                    <tr>
+                        <td><a href="{% url 'repairs:detail' pk=repair.pk %}">{{ repair.detected_on|date:"d.m.Y H:i" }}</a></td>
+                        <td>{{ repair.machine.model }}</td>
+                        <td>{{ repair.component.component_type|default:"-" }}</td>
+                        <td>{{ repair.problem|truncatechars:60 }}</td>
+                        <td>
+                            {% if repair.is_resolved %}
+                                <span class="badge bg-success">Resolved</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Open</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-muted">This technician has no repairs yet.</p>
+    {% endif %}
+
+    <a href="{% url 'resources:technician_list' %}" class="btn btn-link">Back to list</a>
+{% endblock %}

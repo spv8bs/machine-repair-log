@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete technician{% endblock %}
+
+{% block content %}
+    <div class="card border-danger">
+        <div class="card-body">
+            <h1 class="h4">Delete technician</h1>
+            <p>
+                Are you sure you want to delete <strong>{{ object.first_name }} {{ object.last_name }}</strong>?
+                The technician will be removed from all repairs, and their actions will stay without a technician.
+                This cannot be undone.
+            </p>
+
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_div }}
+                <button type="submit" class="btn btn-danger">Yes, delete</button>
+                <a href="{% url 'resources:technician_details' pk=object.pk %}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+{% endblock %}

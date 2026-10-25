@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Parts{% endblock %}
+
+{% block page_header %}
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <h1 class="h3 mb-0">Parts</h1>
+        <a href="{% url 'resources:part_create' %}" class="btn btn-primary">Add part</a>
+    </div>
+{% endblock %}
+
+{% block content %}
+    {% if object_list %}
+        <table class="table table-hover bg-white">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Catalog number</th>
+                    <th>Unit price</th>
+                    <th>Supplier</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for part in object_list %}
+                    <tr>
+                        <td><a href="{% url 'resources:part_details' pk=part.pk %}">{{ part.name }}</a></td>
+                        <td>{{ part.catalog_number }}</td>
+                        <td>{{ part.unit_price }}</td>
+                        <td>{{ part.supplier.name|default:"-" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-muted">No parts yet. <a href="{% url 'resources:part_create' %}">Add the first one.</a></p>
+    {% endif %}
+
+    {% if is_paginated %}
+        <nav>
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                    </li>
+                {% endif %}
+
+                <li class="page-item disabled">
+                    <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                </li>
+
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+{% endblock %}
