@@ -2,12 +2,14 @@ from datetime import timedelta
 
 from django.contrib import messages
 from django.db.models import Count
-from django.urls import reverse_lazy
+from django.shortcuts import get_object_or_404
+from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 
-from machines.forms import MachineForm
-from machines.models import Machine
+from common.mixins import DeleteFormInstanceMixin
+from machines.forms import MachineForm, ComponentForm, ComponentDeleteForm
+from machines.models import Machine, Component
 from common.utils import calc_downtime
 
 
@@ -81,4 +83,74 @@ class MachineDeleteView(DeleteView):
         messages.success(self.request, 'Machine deleted successfully')
         return super().form_valid(form)
 
-    # TODO да изнеса в mixin message.success
+
+
+class ComponentCreateView(CreateView):
+    model = Component
+    form_class = ComponentForm
+    template_name = 'machines/components/component_form.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.machine = get_object_or_404(Machine, pk=kwargs['pk'])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_initial(self ):
+        initial = super().get_initial()
+        initial['machine'] = self.machine
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['machine'] = self.machine
+        return context
+
+    def get_success_url(self):
+        return reverse('machines:detail', kwargs={'pk': self.machine.pk})
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Component created successfully')
+        return super().form_valid(form)
+
+class ComponentEditView(UpdateView):
+    model = Component
+    form_class = ComponentForm
+    template_name = 'machines/components/component_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['machine'] = self.object.machine
+        return context
+
+    def get_success_url(self):
+        return reverse('machines:detail', kwargs={'pk': self.object.machine.pk})
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Component updated successfully')
+        return super().form_valid(form)
+
+class ComponentDetailView(DetailView):
+    model = Component
+    template_name = 'machines/components/component_details.html'
+
+    def get_queryset(self):
+        return super().get_queryset().select_related('machine')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        repairs = self.object.repairs.select_related('machine').order_by('-detected_on')
+        for repair in repairs:
+            repair.downtime = calc_downtime(repair.detected_on, repair.downtime_end)
+        context['repairs'] = repairs
+        return context
+
+class ComponentDeleteView(DeleteFormInstanceMixin, DeleteView):
+    model = Component
+    form_class = ComponentDeleteForm
+    template_name = 'machines/components/component_delete.html'
+
+    def get_success_url(self):
+        return reverse('machines:detail', kwargs={'pk': self.object.machine.pk})
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Component deleted successfully')
+        return super().form_valid(form)

@@ -1,5 +1,7 @@
 from django import forms
+from django.urls import reverse
 from django.utils import timezone
+from django.utils.html import format_html
 
 from common.mixins import DisabledFormMixin, BootstrapFormMixin
 from machines.models import Component, Machine
@@ -24,12 +26,12 @@ class RepairForm(BootstrapFormMixin, forms.ModelForm):
             'parts': 'Parts used'
         }
         help_texts = {
-            'component': 'Choose a component of the selected machine',
+            'component': 'Choose a component of the selected machine, or leave empty if it is not related to a specific component',
             'resolved_on': 'Leave empty while the repair is still open',
             'limited_on': 'If machine runs with limitations, but the repair is not finished',
             'cost': 'Total cost of the repair',
-            'technicians': 'Technicians of the repair',
-            'parts': 'Parts of the repair'
+            'technicians': 'Technicians of the repair (hold Ctrl to select more than one)',
+            'parts': 'Parts of the repair (hold Ctrl to select more than one)'
         }
         error_messages = {
             'machine': {'required': 'Please select a machine'}
@@ -69,6 +71,11 @@ class RepairForm(BootstrapFormMixin, forms.ModelForm):
         if selected_machine:
             components = components.filter(machine=selected_machine)
         self.fields['component'].queryset = components
+        if selected_machine and not isinstance(self, DisabledFormMixin):
+            add_url = reverse('machines:component_create', kwargs={'pk': selected_machine.pk})
+            self.fields['component'].help_text = format_html(
+                '{}<br><a href="{}">Component missing? Add it to {}</a>',
+                self.fields['component'].help_text, add_url, selected_machine)
 
 
     def clean(self):

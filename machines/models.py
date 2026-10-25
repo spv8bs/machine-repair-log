@@ -1,6 +1,9 @@
 from django.core.validators import MinLengthValidator
 from django.db import models
 
+from resources.models import Part
+
+
 class Machine(models.Model):
     model = models.CharField(max_length=50,
                              unique=True,
@@ -17,6 +20,7 @@ class Component(models.Model):
     machine = models.ForeignKey(Machine, on_delete=models.CASCADE, related_name="components")
     component_type = models.CharField(max_length=50) # main motor, print section bearing, etc.
     description = models.TextField(blank=True, null=True)
+    parts = models.ManyToManyField('resources.Part', blank=True, related_name="components")
 
     # avoid creating the same component on a specific machine
     class Meta:

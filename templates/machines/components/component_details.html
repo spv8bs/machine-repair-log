@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ component.component_type }}
+{% endblock %}
+
+{% block page_header %}
+    {% url 'machines:component_edit' pk=component.pk as edit_url %}
+    {% url 'machines:component_delete' pk=component.pk as delete_url %}
+    {% include 'common/page_header.html' with title=component.component_type %}
+{% endblock %}
+
+{% block content %}
+    <div class="card mb-4">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Machine</dt>
+                <dd class="col-sm-9">
+                    <a href="{% url 'machines:detail' pk=component.machine.pk %}">{{ component.machine.model }}</a>
+                </dd>
+
+                <dt class="col-sm-3">Description</dt>
+                <dd class="col-sm-9">{{ component.description|default:"-"|linebreaksbr }}</dd>
+
+                <dt class="col-sm-3">Parts</dt>
+                <dd class="col-sm-9">
+                    {% for part in component.parts.all %}{{ part.name }}{% if not forloop.last %}, {% endif %}{% empty %}-{% endfor %}
+                </dd>
+            </dl>
+        </div>
+    </div>
+
+    <h2 class="h5">Repairs ({{ repairs|length }})</h2>
+    {% if repairs %}
+        <table class="table table-hover bg-white">
+            <thead>
+                <tr>
+                    <th>Detected</th>
+                    <th>Problem</th>
+                    <th>Downtime</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for repair in repairs %}
+                    <tr>
+                        <td><a href="{% url 'repairs:detail' pk=repair.pk %}">{{ repair.detected_on|date:"d.m.Y H:i" }}</a></td>
+                        <td>{{ repair.problem|truncatechars:60 }}</td>
+                        <td>{{ repair.downtime }}</td>
+                        <td>{% include 'repairs/repair_status.html' %}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-muted">No repairs for this component yet.</p>
+    {% endif %}
+
+    <a href="{% url 'machines:detail' pk=component.machine.pk %}" class="btn btn-link">Back to machine</a>
+{% endblock %}

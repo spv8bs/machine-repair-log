@@ -34,3 +34,8 @@ form label {
     padding-left: 0;
     margin-bottom: 0.25rem;
 }
+
+.form-control::placeholder {
+    color: #adb5bd;
+    opacity: 1;
+}

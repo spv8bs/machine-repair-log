@@ -16,6 +16,24 @@
         {% include 'machines/machine_detail_statistics.html' %}
     {% endif %}
 
+    <h2 class="h5 mt-4">Components ({{ machine.components.count }})</h2>
+    {% if machine.components.all %}
+        <ul class="list-group mb-2">
+            {% for component in machine.components.all %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>
+                        <a href="{% url 'machines:component_detail' pk=component.pk %}">{{ component.component_type }}</a>
+                        {% if component.description %}<span class="text-muted">- {{ component.description }}</span>{% endif %}
+                    </span>
+                    <a href="{% url 'machines:component_edit' pk=component.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-muted">No components yet.</p>
+    {% endif %}
+    <a href="{% url 'machines:component_create' pk=machine.pk %}" class="btn btn-sm btn-primary">Add component</a>
+
     <h2 class="h5 mt-4">Repairs ({{ repairs|length }})</h2>
     {% if repairs %}
         <table class="table table-hover bg-white">

@@ -8,7 +8,6 @@
     <div class="p-4 mb-4 bg-white rounded border">
         <h1 class="h3">Machine Repair Log</h1>
         <p class="mb-3 text-muted">Keep the repair history of your machines in one place.</p>
-        <a href="{% url 'machines:create' %}" class="btn btn-primary">Add machine</a>
         <a href="{% url 'repairs:select_machine' %}" class="btn btn-outline-primary">Add repair</a>
     </div>
 
@@ -38,6 +37,16 @@
             </div>
         </div>
     </div>
+
+    <form method="get" action="{% url 'repairs:list' %}" class="mb-3">
+        <div>
+            <div class="helptext">{{ search_form.query.help_text }}</div>
+            <div class="input-group">
+                {{ search_form.query }}
+                <button type="submit" class="btn btn-primary">Search repairs</button>
+            </div>
+        </div>
+    </form>
 
     <h2 class="h5">Latest repairs</h2>
     {% if latest_repairs %}

@@ -2,7 +2,7 @@ from django.views.generic import TemplateView
 
 from machines.models import Machine
 from repairs.models import Repair
-
+from repairs.forms import RepairSearchForm
 
 class HomePageView(TemplateView):
     template_name = 'common/home.html'
@@ -14,6 +14,7 @@ class HomePageView(TemplateView):
         context['open_repairs_count'] =   Repair.objects.filter(
             resolved_on__isnull=True, limited_on__isnull=True).count()
         context['latest_repairs'] = (
-            Repair.objects.select_related('machine', 'component').order_by('-detected_on')[:5]
+            Repair.objects.select_related('machine', 'component').order_by('-detected_on')[:10]
         )
+        context['search_form'] = RepairSearchForm()
         return context
