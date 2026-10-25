@@ -4,11 +4,13 @@ from django.views.generic import ListView, CreateView, DetailView, UpdateView, D
 
 from machines.forms import MachineForm
 from machines.models import Machine
+from common.utils import calc_downtime
 
 
 class MachineListView(ListView):
     model = Machine
     paginate_by = 10
+    paginate_orphans = 3
     ordering = 'model'
 
 class MachineCreateView(CreateView):
@@ -25,6 +27,15 @@ class MachineCreateView(CreateView):
 class MachineDetailView(DetailView):
     model = Machine
     template_name = 'machines/machine_details.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        repairs = self.object.repairs.select_related('component').order_by('-detected_on')
+
+        for repair in repairs:
+            repair.downtime = calc_downtime(repair.detected_on, repair.resolved_on)
+        context['repairs'] = repairs
+        return context
 
 class MachineEditView(UpdateView):
     model = Machine

@@ -1,14 +1,15 @@
 from django.contrib import messages
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView, TemplateView
 
 from machines.models import Machine
 from common.mixins import DeleteFormInstanceMixin
-from repairs.forms import RepairForm, RepairActionForm, RepairDeleteForm
+from repairs.forms import RepairForm, RepairActionForm, RepairDeleteForm, RepairSearchForm
 from repairs.models import Repair, RepairAction
-from repairs.utils import minutes_between
+from common.utils import calc_downtime
+
 
 class RepairSelectMachineView(TemplateView):
     template_name = 'repairs/select_machine.html'
@@ -24,14 +25,31 @@ class RepairListView(ListView):
     context_object_name = 'repairs'
     ordering = ['-detected_on']
     paginate_by = 10
+    paginate_orphans = 3
 
     def get_queryset(self):
-        return super().get_queryset().select_related('machine', 'component')
+        queryset = super().get_queryset().select_related('machine', 'component')
+
+        self.form = RepairSearchForm(self.request.GET)
+        if self.form.is_valid():
+            machine = self.form.cleaned_data['machine']
+            query = self.form.cleaned_data['query']
+            if machine:
+                queryset = queryset.filter(machine=machine)
+            # search in component, problem ... X diagnosis
+            if query:
+                queryset = queryset.filter(
+                    Q(problem__icontains=query) #| Q(diagnosis__icontains=query)
+                    | Q(component__component_type__icontains=query)
+                )
+
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['form'] = self.form
         for repair in context['repairs']:
-            repair.downtime = minutes_between(repair.detected_on, repair.resolved_on)
+            repair.downtime = calc_downtime(repair.detected_on, repair.resolved_on)
         return context
 
 
@@ -77,7 +95,7 @@ class RepairDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         repair = context['repair']
-        repair.downtime = minutes_between(repair.detected_on, repair.resolved_on)
+        repair.downtime = calc_downtime(repair.detected_on, repair.resolved_on)
         return context
 
 class RepairEditView(UpdateView):

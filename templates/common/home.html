@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Machine Repair Log
+{% endblock %}
+
+{% block content %}
+    <div class="p-4 mb-4 bg-white rounded border">
+        <h1 class="h3">Machine Repair Log</h1>
+        <p class="mb-3 text-muted">Keep the repair history of your machines in one place.</p>
+        <a href="{% url 'machines:create' %}" class="btn btn-primary">Add machine</a>
+        <a href="{% url 'repairs:select_machine' %}" class="btn btn-outline-primary">Add repair</a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="display-6">{{ machines_count }}</div>
+                    <div class="text-muted">Machines</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="display-6">{{ repairs_count }}</div>
+                    <div class="text-muted">Repairs</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="display-6">{{ open_repairs_count }}</div>
+                    <div class="text-muted">Open repairs</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="h5">Latest repairs</h2>
+    {% if latest_repairs %}
+        <table class="table table-hover bg-white">
+            <thead>
+                <tr><th>Machine</th><th>Problem</th><th>Detected</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+                {% for repair in latest_repairs %}
+                    <tr>
+                        <td><a href="{% url 'repairs:detail' pk=repair.pk %}">{{ repair.machine.model }}</a></td>
+                        <td>{{ repair.problem|truncatechars:60 }}</td>
+                        <td>{{ repair.detected_on|date:"d.m.Y H:i" }}</td>
+                        <td>
+                            {% if repair.is_resolved %}
+                                <span class="badge bg-success">Resolved</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Open</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-muted">No repairs yet. Start by adding a machine, then add its first repair.</p>
+    {% endif %}
+{% endblock %}

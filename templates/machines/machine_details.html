@@ -12,4 +12,39 @@
     <a href="{% url 'machines:delete' pk=machine.pk %}" class="btn btn-danger">Delete</a>
     <a href="{% url 'machines:list' %}" class="btn btn-link">Back to list</a>
 
+    <h2 class="h5 mt-4">Repairs ({{ repairs|length }})</h2>
+    {% if repairs %}
+        <table class="table table-hover bg-white">
+            <thead>
+                <tr>
+                    <th>Detected</th>
+                    <th>Component</th>
+                    <th>Problem</th>
+                    <th>Downtime</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for repair in repairs %}
+                    <tr>
+                        <td><a href="{% url 'repairs:detail' pk=repair.pk %}">{{ repair.detected_on|date:"d.m.Y H:i" }}</a></td>
+                        <td>{{ repair.component.component_type|default:"-" }}</td>
+                        <td>{{ repair.problem|truncatechars:60 }}</td>
+                        <td>{{ repair.downtime }}</td>
+                        <td>
+                            {% if repair.is_resolved %}
+                                <span class="badge bg-success">Resolved</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Open</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="{% url 'repairs:list' %}?machine={{ machine.pk }}">All repairs of this machine</a>
+    {% else %}
+        <p class="text-muted">No repairs for this machine yet. <a href="{% url 'repairs:create' %}?machine={{ machine.pk }}">Add the first one.</a></p>
+    {% endif %}
+
 {% endblock %}

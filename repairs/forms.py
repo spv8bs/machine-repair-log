@@ -1,6 +1,6 @@
 from django import forms
 from common.mixins import DisabledFormMixin
-from machines.models import Component
+from machines.models import Component, Machine
 from repairs.models import Repair, RepairAction
 
 
@@ -44,7 +44,7 @@ class RepairForm(forms.ModelForm):
             'diagnosis': forms.Textarea(
                 attrs={'rows': 3, 'placeholder': 'Diagnosis'}),
             'cost': forms.NumberInput(
-                attrs={'min': 0, 'step': '0.10'}),
+                attrs={'min': 0, 'step': '0.01'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -105,3 +105,20 @@ class RepairActionForm(forms.ModelForm):
         repair = self.instance.repair if self.instance.pk else self.initial.get('repair')
         if repair is not None:
             self.fields['technician'].queryset = repair.technicians.all()
+
+class RepairSearchForm(forms.Form):
+    # search by machine; default -> all machines #TODO To think: Better as if with filtering after search?!
+    machine = forms.ModelChoiceField(
+        queryset=Machine.objects.order_by('model'),
+        required=False,
+        empty_label='All machines',
+        label='',
+    )
+    query = forms.CharField(
+        label='',
+        required=False,
+        max_length=100,
+        help_text='Search by component or problem',
+        widget=forms.TextInput(attrs={'placeholder': 'Enter a query'}
+        )
+    )
