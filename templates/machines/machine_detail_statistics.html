@@ -1,0 +1,26 @@
+<div class="row g-3 mt-2">
+    <div class="col-md-3">
+        <div class="card text-center"><div class="card-body">
+            <div class="display-6">{{ repairs_count }}</div>
+            <div class="text-muted">Total repairs</div>
+        </div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center"><div class="card-body">
+            <div class="display-6">{{ open_repairs_count }}</div>
+            <div class="text-muted">Open repairs</div>
+        </div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center"><div class="card-body">
+            <div class="display-6">{{ total_downtime }}</div>
+            <div class="text-muted">Total downtime</div>
+        </div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center"><div class="card-body">
+            <div class="display-6">{{ total_cost|floatformat:2 }}</div>
+            <div class="text-muted">Total cost</div>
+        </div></div>
+    </div>
+</div>

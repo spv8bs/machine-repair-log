@@ -49,7 +49,7 @@ class RepairListView(ListView):
         context = super().get_context_data(**kwargs)
         context['form'] = self.form
         for repair in context['repairs']:
-            repair.downtime = calc_downtime(repair.detected_on, repair.resolved_on)
+            repair.downtime = calc_downtime(repair.detected_on, repair.downtime_end)
         return context
 
 
@@ -95,7 +95,7 @@ class RepairDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         repair = context['repair']
-        repair.downtime = calc_downtime(repair.detected_on, repair.resolved_on)
+        repair.downtime = calc_downtime(repair.detected_on, repair.downtime_end)
         return context
 
 class RepairEditView(UpdateView):

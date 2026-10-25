@@ -1,0 +1,7 @@
+{% if repair.status == 'Resolved' %}
+    <span class="badge bg-success">Resolved</span>
+{% elif repair.status == 'Limited' %}
+    <span class="badge bg-info text-dark">Limited</span>
+{% else %}
+    <span class="badge bg-warning text-dark">Open</span>
+{% endif %}

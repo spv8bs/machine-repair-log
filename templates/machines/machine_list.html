@@ -3,10 +3,8 @@
 {% block title %}Machines{% endblock %}
 
 {% block page_header %}
-    <div class="page-header d-flex justify-content-between align-items-center">
-        <h1 class="h3 mb-0">Machines</h1>
-        <a href="{% url 'machines:create' %}" class="btn btn-primary">Add machine</a>
-    </div>
+    {% url 'machines:create' as add_url %}
+    {% include 'common/page_header.html' with title='Machines' add_text='Add machine' %}
 {% endblock %}
 
 {% block content %}
@@ -17,6 +15,7 @@
                     <th>Model</th>
                     <th>Type</th>
                     <th>Location</th>
+                    <th>Repairs</th>
                     <th>Active</th>
                 </tr>
             </thead>
@@ -26,6 +25,7 @@
                         <td><a href="{% url 'machines:detail' pk=machine.pk %}">{{ machine.model }}</a></td>
                         <td>{{ machine.machine_type }}</td>
                         <td>{{ machine.location|default:"-" }}</td>
+                        <td>{{ machine.repairs_count }}</td>
                         <td>{{ machine.is_active|yesno:"Yes,No" }}</td>
                     </tr>
                 {% endfor %}

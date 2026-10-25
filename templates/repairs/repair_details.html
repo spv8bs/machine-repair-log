@@ -5,13 +5,9 @@
 {% endblock %}
 
 {% block page_header %}
-    <div class="page-header d-flex justify-content-between align-items-center">
-        <h1 class="h3 mb-0">{{ repair.machine.model }}</h1>
-        <div>
-            <a href="{% url 'repairs:edit' pk=repair.pk %}" class="btn btn-secondary">Edit</a>
-            <a href="{% url 'repairs:delete' pk=repair.pk %}" class="btn btn-danger">Delete</a>
-        </div>
-    </div>
+    {% url 'repairs:edit' pk=repair.pk as edit_url %}
+    {% url 'repairs:delete' pk=repair.pk as delete_url %}
+    {% include 'common/page_header.html' with title=repair.machine.model %}
 {% endblock %}
 
 {% block content %}
@@ -20,11 +16,7 @@
             <dl class="row mb-0">
                 <dt class="col-sm-3">Status</dt>
                 <dd class="col-sm-9">
-                    {% if repair.is_resolved %}
-                        <span class="badge bg-success">Resolved</span>
-                    {% else %}
-                        <span class="badge bg-warning text-dark">Open</span>
-                    {% endif %}
+                    {% include 'repairs/repair_status.html' %}
                 </dd>
 
                 <dt class="col-sm-3">Component</dt>
@@ -41,10 +33,11 @@
 
                 <dt class="col-sm-3">Resolved on</dt>
                 <dd class="col-sm-9">{{ repair.resolved_on|date:"d.m.Y H:i"|default:"-" }}</dd>
+                <dt class="col-sm-3">Limited since</dt>
+                <dd class="col-sm-9">{{ repair.limited_on|date:"d.m.Y H:i"|default:"-" }}</dd>
 
                 <dt class="col-sm-3">Downtime</dt>
-                <dd class="col-sm-9">{{ repair.downtime }}{% if not repair.is_resolved %} (ongoing){% endif %}</dd>
-
+                <dd class="col-sm-9">{{ repair.downtime }}{% if repair.status == 'Open' %} (ongoing){% endif %}</dd>
                 <dt class="col-sm-3">Cost</dt>
                 <dd class="col-sm-9">{{ repair.cost }}</dd>
 

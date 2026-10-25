@@ -52,11 +52,7 @@
                         <td>{{ repair.problem|truncatechars:60 }}</td>
                         <td>{{ repair.detected_on|date:"d.m.Y H:i" }}</td>
                         <td>
-                            {% if repair.is_resolved %}
-                                <span class="badge bg-success">Resolved</span>
-                            {% else %}
-                                <span class="badge bg-warning text-dark">Open</span>
-                            {% endif %}
+                           {% include 'repairs/repair_status.html' %}
                         </td>
                     </tr>
                 {% endfor %}

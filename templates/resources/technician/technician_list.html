@@ -3,10 +3,8 @@
 {% block title %}Technicians{% endblock %}
 
 {% block page_header %}
-    <div class="page-header d-flex justify-content-between align-items-center">
-        <h1 class="h3 mb-0">Technicians</h1>
-        <a href="{% url 'resources:technician_create' %}" class="btn btn-primary">Add technician</a>
-    </div>
+    {% url 'resources:technician_create' as add_url %}
+    {% include 'common/page_header.html' with title='Technicians' add_text='Add technician' %}
 {% endblock %}
 
 {% block content %}

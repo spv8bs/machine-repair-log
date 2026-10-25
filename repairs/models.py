@@ -13,6 +13,7 @@ class Repair(models.Model):
     problem = models.TextField()
     detected_on = models.DateTimeField(default=timezone.now)
     resolved_on = models.DateTimeField(null=True, blank=True)
+    limited_on = models.DateTimeField(null=True, blank=True)  # Machine operating with limitations
     diagnosis = models.TextField(blank=True)
     cost = models.DecimalField(max_digits=8, decimal_places=2, default=0,
                                validators=[MinValueValidator(0)])
@@ -24,6 +25,19 @@ class Repair(models.Model):
     @property
     def is_resolved(self):
         return self.resolved_on is not None
+
+    @property
+    def downtime_end(self):
+        ends = [d for d in (self.limited_on, self.resolved_on) if d]
+        return min(ends) if ends else None
+
+    @property
+    def status(self):
+        if self.resolved_on:
+            return "Resolved"
+        if self.limited_on:
+            return "Limited"
+        return "Open"
 
     def __str__(self):
         if self.component is None:

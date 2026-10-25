@@ -1,8 +1,8 @@
 from django import forms
 from machines.models import Machine
+from common.mixins import BootstrapFormMixin
 
-
-class MachineForm(forms.ModelForm):
+class MachineForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = Machine
         fields = ('model', 'machine_type', 'location', 'is_active', 'notes')

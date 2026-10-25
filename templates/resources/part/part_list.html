@@ -3,10 +3,8 @@
 {% block title %}Parts{% endblock %}
 
 {% block page_header %}
-    <div class="page-header d-flex justify-content-between align-items-center">
-        <h1 class="h3 mb-0">Parts</h1>
-        <a href="{% url 'resources:part_create' %}" class="btn btn-primary">Add part</a>
-    </div>
+    {% url 'resources:part_create' as add_url %}
+    {% include 'common/page_header.html' with title='Parts' add_text='Add part' %}
 {% endblock %}
 
 {% block content %}

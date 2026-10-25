@@ -11,8 +11,8 @@ class HomePageView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['machines_count'] = Machine.objects.count()
         context['repairs_count'] = Repair.objects.count()
-        context['open_repairs_count'] = Repair.objects.filter(
-            resolved_on__isnull=True).count()
+        context['open_repairs_count'] =   Repair.objects.filter(
+            resolved_on__isnull=True, limited_on__isnull=True).count()
         context['latest_repairs'] = (
             Repair.objects.select_related('machine', 'component').order_by('-detected_on')[:5]
         )

@@ -1,9 +1,9 @@
-from common.mixins import DisabledFormMixin
+from common.mixins import DisabledFormMixin, BootstrapFormMixin
 from django import forms
 from resources.models import Technician, Supplier, Part
 
 
-class TechnicianForm(forms.ModelForm):
+class TechnicianForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = Technician
         fields = '__all__'
@@ -23,7 +23,7 @@ class TechnicianForm(forms.ModelForm):
 class TechnicianDeleteForm(DisabledFormMixin, TechnicianForm):
     pass
 
-class SupplierForm(forms.ModelForm):
+class SupplierForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = Supplier
         fields = '__all__'
@@ -41,7 +41,7 @@ class SupplierForm(forms.ModelForm):
 class SupplierDeleteForm(DisabledFormMixin, SupplierForm):
     pass
 
-class PartForm(forms.ModelForm):
+class PartForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = Part
         fields = '__all__'

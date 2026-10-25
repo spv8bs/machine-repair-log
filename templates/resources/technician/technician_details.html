@@ -3,13 +3,9 @@
 {% block title %}{{ technician.first_name }} {{ technician.last_name }}{% endblock %}
 
 {% block page_header %}
-    <div class="page-header d-flex justify-content-between align-items-center">
-        <h1 class="h3 mb-0">{{ technician.first_name }} {{ technician.last_name }}</h1>
-        <div>
-            <a href="{% url 'resources:technician_edit' pk=technician.pk %}" class="btn btn-secondary">Edit</a>
-            <a href="{% url 'resources:technician_delete' pk=technician.pk %}" class="btn btn-danger">Delete</a>
-        </div>
-    </div>
+    {% url 'resources:technician_edit' pk=technician.pk as edit_url %}
+    {% url 'resources:technician_delete' pk=technician.pk as delete_url %}
+    {% include 'common/page_header.html' with title=technician.first_name|add:" "|add:technician.last_name %}
 {% endblock %}
 
 {% block content %}
@@ -45,11 +41,7 @@
                         <td>{{ repair.component.component_type|default:"-" }}</td>
                         <td>{{ repair.problem|truncatechars:60 }}</td>
                         <td>
-                            {% if repair.is_resolved %}
-                                <span class="badge bg-success">Resolved</span>
-                            {% else %}
-                                <span class="badge bg-warning text-dark">Open</span>
-                            {% endif %}
+                            {% include 'repairs/repair_status.html' %}
                         </td>
                     </tr>
                 {% endfor %}

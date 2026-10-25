@@ -3,13 +3,9 @@
 {% block title %}{{ supplier.name }}{% endblock %}
 
 {% block page_header %}
-    <div class="page-header d-flex justify-content-between align-items-center">
-        <h1 class="h3 mb-0">{{ supplier.name }}</h1>
-        <div>
-            <a href="{% url 'resources:supplier_edit' pk=supplier.pk %}" class="btn btn-secondary">Edit</a>
-            <a href="{% url 'resources:supplier_delete' pk=supplier.pk %}" class="btn btn-danger">Delete</a>
-        </div>
-    </div>
+    {% url 'resources:supplier_edit' pk=supplier.pk as edit_url %}
+    {% url 'resources:supplier_delete' pk=supplier.pk as delete_url %}
+    {% include 'common/page_header.html' with title=supplier.name %}
 {% endblock %}
 
 {% block content %}

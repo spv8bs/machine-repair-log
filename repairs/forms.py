@@ -1,10 +1,12 @@
 from django import forms
-from common.mixins import DisabledFormMixin
+from django.utils import timezone
+
+from common.mixins import DisabledFormMixin, BootstrapFormMixin
 from machines.models import Component, Machine
 from repairs.models import Repair, RepairAction
 
 
-class RepairForm(forms.ModelForm):
+class RepairForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = Repair
         fields = '__all__'
@@ -14,6 +16,7 @@ class RepairForm(forms.ModelForm):
             'problem': 'Problem',
             'detected_on': 'Detected on',
             'resolved_on': 'Resolved on',
+            'limited_on': 'Limited since',
             'diagnosis': 'Diagnosis',
             'cost': 'Cost',
             'photo': 'Photo',
@@ -23,6 +26,7 @@ class RepairForm(forms.ModelForm):
         help_texts = {
             'component': 'Choose a component of the selected machine',
             'resolved_on': 'Leave empty while the repair is still open',
+            'limited_on': 'If machine runs with limitations, but the repair is not finished',
             'cost': 'Total cost of the repair',
             'technicians': 'Technicians of the repair',
             'parts': 'Parts of the repair'
@@ -39,6 +43,9 @@ class RepairForm(forms.ModelForm):
                 attrs={'type': 'datetime-local'},
                 format='%Y-%m-%dT%H:%M'),
             'resolved_on': forms.DateTimeInput(
+                attrs={'type': 'datetime-local'},
+                format='%Y-%m-%dT%H:%M'),
+            'limited_on': forms.DateTimeInput(
                 attrs={'type': 'datetime-local'},
                 format='%Y-%m-%dT%H:%M'),
             'diagnosis': forms.Textarea(
@@ -76,6 +83,14 @@ class RepairForm(forms.ModelForm):
 
         if detected_on and resolved_on and resolved_on < detected_on:
             self.add_error('resolved_on', 'Resolved date cannot be before detection date')
+            limited_on = cleaned_data.get('limited_on')
+            if limited_on and limited_on > timezone.now():
+                self.add_error('limited_on', 'Limited date cannot be in the future')
+            if detected_on and limited_on and limited_on < detected_on:
+                self.add_error('limited_on', 'Limited date cannot be before detection date')
+            if limited_on and resolved_on and resolved_on < limited_on:
+                self.add_error('resolved_on',
+                               'Resolved date cannot be before the date the machine started running with limitations')
 
         return cleaned_data
 
@@ -84,7 +99,7 @@ class RepairDeleteForm(DisabledFormMixin, RepairForm):
     pass
 
 
-class RepairActionForm(forms.ModelForm):
+class RepairActionForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = RepairAction
         exclude = ['created_at',]  #TODO check without exclude auto_now_add field
@@ -106,7 +121,7 @@ class RepairActionForm(forms.ModelForm):
         if repair is not None:
             self.fields['technician'].queryset = repair.technicians.all()
 
-class RepairSearchForm(forms.Form):
+class RepairSearchForm(BootstrapFormMixin, forms.Form):
     # search by machine; default -> all machines #TODO To think: Better as if with filtering after search?!
     machine = forms.ModelChoiceField(
         queryset=Machine.objects.order_by('model'),
