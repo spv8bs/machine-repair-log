@@ -25,6 +25,6 @@ class Part(models.Model):
                                      validators=[MinValueValidator(0)])
     supplier = models.ForeignKey(Supplier, on_delete=models.SET_NULL, null=True, blank=True, related_name="parts")
 
-
     def __str__(self):
-        return f"{self.name} - {self.supplier}"
+        supplier = self.supplier or "No supplier"
+        return f"{self.name} - {supplier}"

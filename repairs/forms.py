@@ -88,16 +88,24 @@ class RepairForm(BootstrapFormMixin, forms.ModelForm):
         # if machine and component and component.machine_id != machine.pk:
         #     self.add_error('component', 'This c')
 
+
+        # Back to the future :)
+        now = timezone.now()
+        if detected_on and detected_on > now:
+            self.add_error('detected_on', "Detection date cannot be in the future")
+        if resolved_on and resolved_on > now:
+            self.add_error('resolved_on', "Resolve date cannot be in the future")
+
         if detected_on and resolved_on and resolved_on < detected_on:
             self.add_error('resolved_on', 'Resolved date cannot be before detection date')
-            limited_on = cleaned_data.get('limited_on')
-            if limited_on and limited_on > timezone.now():
-                self.add_error('limited_on', 'Limited date cannot be in the future')
-            if detected_on and limited_on and limited_on < detected_on:
-                self.add_error('limited_on', 'Limited date cannot be before detection date')
-            if limited_on and resolved_on and resolved_on < limited_on:
-                self.add_error('resolved_on',
-                               'Resolved date cannot be before the date the machine started running with limitations')
+        limited_on = cleaned_data.get('limited_on')
+        if limited_on and limited_on > timezone.now():
+            self.add_error('limited_on', 'Limited date cannot be in the future')
+        if detected_on and limited_on and limited_on < detected_on:
+            self.add_error('limited_on', 'Limited date cannot be before detection date')
+        if limited_on and resolved_on and resolved_on < limited_on:
+            self.add_error('resolved_on',
+                           'Resolved date cannot be before the date the machine started running with limitations')
 
         return cleaned_data
 
@@ -119,14 +127,21 @@ class RepairActionForm(BootstrapFormMixin, forms.ModelForm):
             'description': forms.Textarea(
                 attrs={'rows': 3, 'placeholder': 'Describe the action taken'}),
         }
+        error_messages = {
+            'description': {'required': 'Describe the action taken'},
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['repair'].disabled = True
+        self.fields['description'].required = True
 
         repair = self.instance.repair if self.instance.pk else self.initial.get('repair')
         if repair is not None:
             self.fields['technician'].queryset = repair.technicians.all()
+
+class RepairActionDeleteForm(DisabledFormMixin, RepairActionForm):
+    pass
 
 class RepairSearchForm(BootstrapFormMixin, forms.Form):
     # search by machine; default -> all machines #TODO To think: Better as if with filtering after search?!
@@ -136,11 +151,22 @@ class RepairSearchForm(BootstrapFormMixin, forms.Form):
         empty_label='All machines',
         label='',
     )
+    status = forms.ChoiceField(
+        choices=[
+            ('', 'All repairs'),
+            ('open', 'Open'),
+            ('limited', 'Limited'),
+            ('resolved', 'Resolved'),
+        ],
+        required=False,
+        label='',
+    )
+
     query = forms.CharField(
         label='',
         required=False,
         max_length=100,
-        help_text='Search by component or problem',
+        help_text='Search by repair number, year, component or problem',
         widget=forms.TextInput(attrs={'placeholder': 'Enter a query'}
         )
     )

@@ -1,16 +1,13 @@
-from datetime import timedelta
-
 from django.contrib import messages
 from django.db.models import Count
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
-from django.utils import timezone
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 
 from common.mixins import DeleteFormInstanceMixin
 from machines.forms import MachineForm, ComponentForm, ComponentDeleteForm
 from machines.models import Machine, Component
-from common.utils import calc_downtime
+from common.utils import repair_stats
 
 
 class MachineListView(ListView):
@@ -41,24 +38,8 @@ class MachineDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         repairs = self.object.repairs.select_related('component').order_by('-detected_on')
-
-        now = timezone.now()
-        total_downtime = timedelta()
-        total_cost = 0
-        open_count = 0
-
-        for repair in repairs:
-            repair.downtime = calc_downtime(repair.detected_on, repair.downtime_end)
-            total_downtime += (repair.downtime_end or now) - repair.detected_on
-            total_cost += repair.cost
-            if not repair.is_resolved:
-                open_count += 1
-
         context['repairs'] = repairs
-        context['repairs_count'] = len(repairs)
-        context['open_repairs_count'] = open_count
-        context['total_downtime'] = calc_downtime(now - total_downtime, now)
-        context['total_cost'] = total_cost
+        context.update(repair_stats(repairs))
         return context
 
 class MachineEditView(UpdateView):
@@ -80,9 +61,12 @@ class MachineDeleteView(DeleteView):
     success_url = reverse_lazy('machines:list')
 
     def form_valid(self, form):
+        if self.object.repairs.exists():
+            messages.error(self.request,
+                           'This machine has repairs and cannot be deleted. Delete its repairs first or mark it as inactive.')
+            return redirect('machines:detail', pk=self.object.pk)
         messages.success(self.request, 'Machine deleted successfully')
         return super().form_valid(form)
-
 
 
 class ComponentCreateView(CreateView):
@@ -138,9 +122,10 @@ class ComponentDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         repairs = self.object.repairs.select_related('machine').order_by('-detected_on')
-        for repair in repairs:
-            repair.downtime = calc_downtime(repair.detected_on, repair.downtime_end)
+        # for repair in repairs:
+        #     repair.downtime = calc_downtime(repair.detected_on, repair.downtime_end)
         context['repairs'] = repairs
+        context.update(repair_stats(repairs))
         return context
 
 class ComponentDeleteView(DeleteFormInstanceMixin, DeleteView):

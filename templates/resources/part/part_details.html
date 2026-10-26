@@ -35,6 +35,7 @@
         <table class="table table-hover bg-white">
             <thead>
                 <tr>
+                    <th>No.</th>
                     <th>Detected</th>
                     <th>Machine</th>
                     <th>Component</th>
@@ -45,7 +46,8 @@
             <tbody>
                 {% for repair in repairs %}
                     <tr>
-                        <td><a href="{% url 'repairs:detail' pk=repair.pk %}">{{ repair.detected_on|date:"d.m.Y H:i" }}</a></td>
+                        <td><a href="{% url 'repairs:detail' pk=repair.pk %}">{{ repair.number }}</a></td>
+                        <td>{{ repair.detected_on|date:"d.m.Y H:i" }}</td>
                         <td>{{ repair.machine.model }}</td>
                         <td>{{ repair.component.component_type|default:"-" }}</td>
                         <td>{{ repair.problem|truncatechars:60 }}</td>

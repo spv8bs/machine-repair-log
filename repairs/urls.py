@@ -11,4 +11,6 @@ urlpatterns = [
     path('<int:pk>/edit/', views.RepairEditView.as_view(), name='edit'),
     path('<int:pk>/delete/', views.RepairDeleteView.as_view(), name='delete'),
     path('<int:repair_pk>/actions/add/', views.RepairActionCreateView.as_view(), name='action_create'),
+    path('actions/<int:pk>/edit/', views.RepairActionEditView.as_view(), name='action_edit'),
+    path('actions/<int:pk>/delete/', views.RepairActionDeleteView.as_view(), name='action_delete'),
 ]

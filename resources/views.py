@@ -14,6 +14,8 @@ class TechnicianListView(ListView):
     model = Technician
     template_name = 'resources/technician/technician_list.html'
     ordering = ['first_name', 'last_name']
+    paginate_by = 10
+    paginate_orphans = 3
 
 class TechnicianCreateView(CreateView):
     model = Technician

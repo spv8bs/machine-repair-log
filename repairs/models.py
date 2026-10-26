@@ -39,6 +39,11 @@ class Repair(models.Model):
             return "Limited"
         return "Open"
 
+    # auto-generated repair number -> R-2026-0007 (year+id)
+    @property
+    def number(self):
+        return f"R-{self.detected_on:%Y}-{self.pk:04d}"
+
     def __str__(self):
         if self.component is None:
             return f"{self.machine}"

@@ -1,3 +1,5 @@
+import re
+
 from django.contrib import messages
 from django.db.models import Prefetch, Q
 from django.shortcuts import redirect, get_object_or_404
@@ -6,10 +8,9 @@ from django.views.generic import ListView, CreateView, DetailView, UpdateView, D
 
 from machines.models import Machine
 from common.mixins import DeleteFormInstanceMixin
-from repairs.forms import RepairForm, RepairActionForm, RepairDeleteForm, RepairSearchForm
+from repairs.forms import RepairForm, RepairActionForm, RepairDeleteForm, RepairSearchForm, RepairActionDeleteForm
 from repairs.models import Repair, RepairAction
-from common.utils import calc_downtime
-
+from common.utils import repair_stats
 
 class RepairSelectMachineView(TemplateView):
     template_name = 'repairs/select_machine.html'
@@ -34,22 +35,44 @@ class RepairListView(ListView):
         if self.form.is_valid():
             machine = self.form.cleaned_data['machine']
             query = self.form.cleaned_data['query']
+            status = self.form.cleaned_data['status']
             if machine:
                 queryset = queryset.filter(machine=machine)
-            # search in component, problem ... X diagnosis
+
+            status_filters = {
+                'open': Q(resolved_on__isnull=True, limited_on__isnull=True),
+                'limited': Q(resolved_on__isnull=True, limited_on__isnull=False),
+                'resolved': Q(resolved_on__isnull=False),
+            }
+            if status:
+                queryset = queryset.filter(status_filters[status])
+
+            # search in repair No., component, problem ... X diagnosis
             if query:
-                queryset = queryset.filter(
-                    Q(problem__icontains=query) #| Q(diagnosis__icontains=query)
-                    | Q(component__component_type__icontains=query)
-                )
+                number_match = re.fullmatch(r'R-(\d{4})(?:-(\d*))?', query, re.IGNORECASE)
+                if number_match:
+                    # search by repair number or year
+                    year, number = number_match.groups()
+                    search = Q(detected_on__year=int(year))
+                    if number:
+                        search &= Q(pk=int(number))
+                else:
+                    search = Q(problem__icontains=query) | Q(component__component_type__icontains=query)
+                    if query.isdigit():
+                        search |= Q(pk=int(query))
+                        if len(query) == 4:
+                            search |= Q(detected_on__year=int(query))
+
+                queryset = queryset.filter(search)
 
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = self.form
-        for repair in context['repairs']:
-            repair.downtime = calc_downtime(repair.detected_on, repair.downtime_end)
+        # for repair in context['repairs']:
+        #     repair.downtime = calc_downtime(repair.detected_on, repair.downtime_end)
+        context.update(repair_stats(self.object_list))
         return context
 
 
@@ -61,7 +84,8 @@ class RepairCreateView(CreateView):
 
     def dispatch(self, request, *args, **kwargs):
         machine_pk = request.GET.get('machine', '')
-        if not machine_pk:
+        # return 500 -> resolved
+        if not machine_pk.isdigit():
             return redirect('repairs:select_machine')
         self.machine = get_object_or_404(Machine, pk=machine_pk)
         return super().dispatch(request, *args, **kwargs)
@@ -94,8 +118,8 @@ class RepairDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        repair = context['repair']
-        repair.downtime = calc_downtime(repair.detected_on, repair.downtime_end)
+        # repair = context['repair']
+        # repair.downtime = calc_downtime(repair.detected_on, repair.downtime_end)
         return context
 
 class RepairEditView(UpdateView):
@@ -149,4 +173,34 @@ class RepairActionCreateView(CreateView):
         form.instance.repair = self.repair
         messages.success(self.request, 'Action created successfully')
         return super().form_valid(form)
+
+class RepairActionEditView(UpdateView):
+    model = RepairAction
+    form_class = RepairActionForm
+    template_name = 'repairs/repair_action_create.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['repair'] = self.object.repair
+        return context
+
+    def get_success_url(self):
+        return reverse('repairs:detail', kwargs={'pk': self.object.repair.pk})
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Action edited successfully')
+        return super().form_valid(form)
+
+class RepairActionDeleteView(DeleteFormInstanceMixin, DeleteView):
+    model = RepairAction
+    form_class = RepairActionDeleteForm
+    template_name = 'repairs/repair_action_delete.html'
+
+    def get_success_url(self):
+        return reverse('repairs:detail', kwargs={'pk': self.object.repair.pk})
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Action deleted successfully')
+        return super().form_valid(form)
+
 

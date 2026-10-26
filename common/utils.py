@@ -1,8 +1,8 @@
+from datetime import timedelta
 from django.utils import timezone
 
 
 # downtime calculation
-
 def calc_downtime(start, end=None):
     end = end or timezone.now()
     total_minutes = int((end - start).total_seconds() // 60)
@@ -21,3 +21,23 @@ def calc_downtime(start, end=None):
 #     return round((end - start).total_seconds() / 3600, 1)
 
 # TODO repair/models.py @prperty calculation with input data.
+
+
+def repair_stats(repairs):
+    now = timezone.now()
+    total_downtime = timedelta()
+    total_cost = 0
+    open_count = 0
+
+    for repair in repairs:
+        total_downtime += (repair.downtime_end or now) - repair.detected_on
+        total_cost += repair.cost
+        if repair.status == 'Open':
+            open_count += 1
+
+    return {
+        'repairs_count': len(repairs),
+        'open_repairs_count': open_count,
+        'total_downtime': calc_downtime(now - total_downtime, now),
+        'total_cost': total_cost,
+    }

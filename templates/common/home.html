@@ -52,12 +52,13 @@
     {% if latest_repairs %}
         <table class="table table-hover bg-white">
             <thead>
-                <tr><th>Machine</th><th>Problem</th><th>Detected</th><th>Status</th></tr>
+                <tr><th>No.</th><th>Machine</th><th>Problem</th><th>Detected</th><th>Status</th></tr>
             </thead>
             <tbody>
                 {% for repair in latest_repairs %}
                     <tr>
-                        <td><a href="{% url 'repairs:detail' pk=repair.pk %}">{{ repair.machine.model }}</a></td>
+                        <td><a href="{% url 'repairs:detail' pk=repair.pk %}">{{ repair.number }}</a></td>
+                        <td>{{ repair.machine.model }}</td>
                         <td>{{ repair.problem|truncatechars:60 }}</td>
                         <td>{{ repair.detected_on|date:"d.m.Y H:i" }}</td>
                         <td>
