@@ -7,7 +7,23 @@
 
 {% block content %}
     <h1 class="h3">{{ machine.model }}</h1>
-    <p>Type: {{ machine.machine_type }}</p>
+    <div class="card my-3">
+        <div class="card-body">
+            <dl class="row mb-0 mx-0 dl-label-col">
+                <dt class="col-sm-3">Type</dt>
+                <dd class="col-sm-9">{{ machine.machine_type }}</dd>
+
+                <dt class="col-sm-3">Location</dt>
+                <dd class="col-sm-9">{{ machine.location|default:"-" }}</dd>
+
+                <dt class="col-sm-3">Active</dt>
+                <dd class="col-sm-9">{{ machine.is_active|yesno:"Yes,No" }}</dd>
+
+                <dt class="col-sm-3">Notes</dt>
+                <dd class="col-sm-9">{{ machine.notes|default:"-"|linebreaksbr }}</dd>
+            </dl>
+        </div>
+    </div>
     <a href="{% url 'repairs:create' %}?machine={{ machine.pk }}" class="btn btn-primary">Add repair</a>
     <a href="{% url 'machines:edit' pk=machine.pk %}" class="btn btn-secondary">Edit</a>
     <a href="{% url 'machines:delete' pk=machine.pk %}" class="btn btn-danger">Delete</a>

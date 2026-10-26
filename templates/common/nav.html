@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
     <div class="container">
-        <a class="navbar-brand" href="{% url 'common:home' %}">Machine Repair Log</a>
+        <a class="navbar-brand" href="{% url 'common:home' %}"><i class="bi bi-gear-fill me-2"></i>Machine Repair Log</a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                 data-bs-target="#mainNav" aria-controls="mainNav"
@@ -11,20 +11,20 @@
         <div class="collapse navbar-collapse" id="mainNav">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.app_name == 'machines' %}active{% endif %}"
-                       href="{% url 'machines:list' %}">Machines</a>
+                    <a class="nav-link {% if request.resolver_match.app_name == 'repairs' %}active{% endif %}"
+                       href="{% url 'repairs:list' %}"><i class="bi bi-tools me-1"></i>Repairs</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.app_name == 'repairs' %}active{% endif %}"
-                       href="{% url 'repairs:list' %}">Repairs</a>
+                    <a class="nav-link {% if request.resolver_match.app_name == 'machines' %}active{% endif %}"
+                       href="{% url 'machines:list' %}"><i class="bi bi-gear-wide-connected me-1"></i>Machines</a>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle {% if request.resolver_match.app_name == 'resources' %}active{% endif %}"
-                       href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Resources</a>
+                       href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-box-seam me-1"></i>Resources</a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{% url 'resources:technician_list' %}">Technicians</a></li>
-                        <li><a class="dropdown-item" href="{% url 'resources:supplier_list' %}">Suppliers</a></li>
-                        <li><a class="dropdown-item" href="{% url 'resources:part_list' %}">Parts</a></li>
+                        <li><a class="dropdown-item" href="{% url 'resources:technician_list' %}"><i class="bi bi-people me-2"></i>Technicians</a></li>
+                        <li><a class="dropdown-item" href="{% url 'resources:supplier_list' %}"><i class="bi bi-truck me-2"></i>Suppliers</a></li>
+                        <li><a class="dropdown-item" href="{% url 'resources:part_list' %}"><i class="bi bi-nut me-2"></i>Parts</a></li>
                     </ul>
                 </li>
             </ul>

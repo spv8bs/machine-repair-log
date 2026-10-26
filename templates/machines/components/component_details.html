@@ -14,7 +14,7 @@
 {% block content %}
     <div class="card mb-4">
         <div class="card-body">
-            <dl class="row mb-0">
+            <dl class="row mb-0 mx-0 dl-label-col">
                 <dt class="col-sm-3">Machine</dt>
                 <dd class="col-sm-9">
                     <a href="{% url 'machines:detail' pk=component.machine.pk %}">{{ component.machine.model }}</a>

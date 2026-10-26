@@ -14,56 +14,71 @@
 {% block content %}
     <div class="card mb-4">
         <div class="card-body">
-            <dl class="row mb-0">
-                <dt class="col-sm-3">Status</dt>
-                <dd class="col-sm-9">
-                    {% include 'repairs/repair_status.html' %}
-                </dd>
+            <div class="row">
+                <div class="{% if repair.photo %}col-lg-8{% else %}col-12{% endif %}">
+                    <dl class="row mb-0 mx-0 dl-label-col">
+                        <dt class="col-sm-3">Status</dt>
+                        <dd class="col-sm-9">
+                            {% include 'repairs/repair_status.html' %}
+                        </dd>
 
-                <dt class="col-sm-3">Component</dt>
-                <dd class="col-sm-9">{{ repair.component.component_type|default:"-" }}</dd>
+                        <dt class="col-sm-3">Component</dt>
+                        <dd class="col-sm-9">
+                            {% if repair.component %}
+                                <a href="{% url 'machines:component_detail' pk=repair.component.pk %}">{{ repair.component.component_type }}</a>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </dd>
 
-                <dt class="col-sm-3">Problem</dt>
-                <dd class="col-sm-9">{{ repair.problem|linebreaksbr }}</dd>
+                        <dt class="col-sm-3">Problem</dt>
+                        <dd class="col-sm-9">{{ repair.problem|linebreaksbr }}</dd>
 
-                <dt class="col-sm-3">Diagnosis</dt>
-                <dd class="col-sm-9">{{ repair.diagnosis|default:"-"|linebreaksbr }}</dd>
+                        <dt class="col-sm-3">Diagnosis</dt>
+                        <dd class="col-sm-9">{{ repair.diagnosis|default:"-"|linebreaksbr }}</dd>
 
-                <dt class="col-sm-3">Detected on</dt>
-                <dd class="col-sm-9">{{ repair.detected_on|date:"d.m.Y H:i" }}</dd>
+                        <dt class="col-sm-3">Detected on</dt>
+                        <dd class="col-sm-9">{{ repair.detected_on|date:"d.m.Y H:i" }}</dd>
 
-                <dt class="col-sm-3">Resolved on</dt>
-                <dd class="col-sm-9">{{ repair.resolved_on|date:"d.m.Y H:i"|default:"-" }}</dd>
-                <dt class="col-sm-3">Limited since</dt>
-                <dd class="col-sm-9">{{ repair.limited_on|date:"d.m.Y H:i"|default:"-" }}</dd>
+                        <dt class="col-sm-3">Resolved on</dt>
+                        <dd class="col-sm-9">{{ repair.resolved_on|date:"d.m.Y H:i"|default:"-" }}</dd>
+                        <dt class="col-sm-3">Limited since</dt>
+                        <dd class="col-sm-9">{{ repair.limited_on|date:"d.m.Y H:i"|default:"-" }}</dd>
 
-                <dt class="col-sm-3">Downtime</dt>
-                <dd class="col-sm-9">{{ repair|downtime }}{% if repair.status == 'Open' %} (ongoing){% endif %}</dd>
-                <dt class="col-sm-3">Cost</dt>
-                <dd class="col-sm-9">{{ repair.cost }}</dd>
+                        <dt class="col-sm-3">Downtime</dt>
+                        <dd class="col-sm-9">{{ repair|downtime }}{% if repair.status == 'Open' %} (ongoing){% endif %}</dd>
+                        <dt class="col-sm-3">Cost</dt>
+                        <dd class="col-sm-9">{{ repair.cost }}</dd>
 
-                <dt class="col-sm-3">Technicians</dt>
-                <dd class="col-sm-9">
-                    {% for technician in repair.technicians.all %}
-                        {{ technician.first_name }} {{ technician.last_name }}{% if not forloop.last %}, {% endif %}
-                    {% empty %}
-                        -
-                    {% endfor %}
-                </dd>
+                        <dt class="col-sm-3">Technicians</dt>
+                        <dd class="col-sm-9">
+                            {% for technician in repair.technicians.all %}
+                                <a href="{% url 'resources:technician_details' pk=technician.pk %}">{{ technician.first_name }} {{ technician.last_name }}</a>{% if not forloop.last %}, {% endif %}
+                            {% empty %}
+                                -
+                            {% endfor %}
+                        </dd>
 
-                <dt class="col-sm-3">Parts</dt>
-                <dd class="col-sm-9">
-                    {% for part in repair.parts.all %}
-                        {{ part.name }}{% if not forloop.last %}, {% endif %}
-                    {% empty %}
-                        -
-                    {% endfor %}
-                </dd>
-            </dl>
+                        <dt class="col-sm-3">Parts</dt>
+                        <dd class="col-sm-9">
+                            {% for part in repair.parts.all %}
+                                <a href="{% url 'resources:part_details' pk=part.pk %}">{{ part.name }}</a>{% if not forloop.last %}, {% endif %}
+                            {% empty %}
+                                -
+                            {% endfor %}
+                        </dd>
+                    </dl>
+                </div>
 
-            {% if repair.photo %}
-                <img src="{{ repair.photo.url }}" alt="Repair photo" class="img-fluid mt-3" style="max-height: 300px;">
-            {% endif %}
+                {% if repair.photo %}
+                    <div class="col-lg-4 mt-3 mt-lg-0 text-center">
+                        <a href="{{ repair.photo.url }}" target="_blank">
+                            <img src="{{ repair.photo.url }}" alt="Repair photo" class="img-thumbnail repair-photo">
+                        </a>
+                        <div class="small text-muted mt-1">Click to enlarge</div>
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </div>
 

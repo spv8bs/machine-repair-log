@@ -39,3 +39,27 @@ form label {
     color: #adb5bd;
     opacity: 1;
 }
+
+.repair-photo {
+    max-height: 260px;
+    object-fit: cover;
+}
+
+/* Detail pages: shaded label column */
+
+.dl-label-col > dt,
+.dl-label-col > dd {
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0;
+    border-bottom: 1px solid #fff;
+}
+
+.dl-label-col > dt {
+    background-color: #eef1f5;
+    color: #495057;
+    font-weight: 600;
+}
+
+.dl-label-col > dd {
+    background-color: #fafbfc;
+}

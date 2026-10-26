@@ -18,6 +18,22 @@ class MachineForm(BootstrapFormMixin, forms.ModelForm):
             'machine_type': forms.TextInput(attrs={'placeholder': 'Enter machine type'}),
         }
 
+    def clean_location(self):
+        location = self.cleaned_data['location']
+        return ' '.join(location.split()).capitalize()
+
+
+class MachineFilterForm(BootstrapFormMixin, forms.Form):
+    location = forms.ChoiceField(required=False, label='')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        locations = (Machine.objects.exclude(location='')
+                     .order_by('location')
+                     .values_list('location', flat=True)
+                     .distinct())
+        self.fields['location'].choices = [('', 'All locations')] + [(location, location) for location in locations]
+
 
 class ComponentForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:

@@ -5,7 +5,7 @@ from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 
 from common.mixins import DeleteFormInstanceMixin
-from machines.forms import MachineForm, ComponentForm, ComponentDeleteForm
+from machines.forms import MachineForm, ComponentForm, ComponentDeleteForm, MachineFilterForm
 from machines.models import Machine, Component
 from common.utils import repair_stats
 
@@ -18,7 +18,19 @@ class MachineListView(ListView):
 
     # calculate qty repairs per machine
     def get_queryset(self):
-        return super().get_queryset().annotate(repairs_count=Count('repairs'))
+        queryset = super().get_queryset().annotate(repairs_count=Count('repairs'))
+
+        # filter by location
+        self.form = MachineFilterForm(self.request.GET)
+        if self.form.is_valid() and self.form.cleaned_data['location']:
+            queryset = queryset.filter(location__iexact=self.form.cleaned_data['location'])
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = self.form
+        return context
 
 class MachineCreateView(CreateView):
     model = Machine

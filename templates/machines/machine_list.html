@@ -8,6 +8,12 @@
 {% endblock %}
 
 {% block content %}
+    <form method="get" class="d-flex gap-2 mb-3" style="max-width: 520px;">
+        {{ form.location }}
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <a href="{% url 'machines:list' %}" class="btn btn-link">Clear</a>
+    </form>
+
     {% if object_list %}
         <table class="table table-hover bg-white">
             <thead>
@@ -31,6 +37,8 @@
                 {% endfor %}
             </tbody>
         </table>
+    {% elif request.GET.location %}
+        <p class="text-muted">No machines in this location. <a href="{% url 'machines:list' %}">Clear the filter.</a></p>
     {% else %}
         <p class="text-muted">No machines yet. <a href="{% url 'machines:create' %}">Add the first one.</a></p>
     {% endif %}
@@ -40,7 +48,7 @@
             <ul class="pagination">
                 {% if page_obj.has_previous %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}&location={{ request.GET.location|urlencode }}">Previous</a>
                     </li>
                 {% endif %}
 
@@ -50,7 +58,7 @@
 
                 {% if page_obj.has_next %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}&location={{ request.GET.location|urlencode }}">Next</a>
                     </li>
                 {% endif %}
             </ul>
